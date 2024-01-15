@@ -1,0 +1,13 @@
+I followed the tutorial mostly.
+
+I downloaded a custom image from the internet, it is a random AI generated headshot.
+Then I added it to the res/drawable folder. I named the image profile_picture so the tutorial code worked automatically, and I didn't need to modify the Image composable. But if the image had been called something different, I would have needed to modify the Painter. The image is adjusted using the modifiers in the Image composable. Size determines the size of the image on the screen, clip modifies the shape of the image, border adds the border color and thickness to the image.
+
+Text placement was arranged so that they would not appear on top of each other. Text appearance is modified differently depending on if it's the author text or the content text. The appearance was modified with MaterialTheme. For the author, only color and typography are modified. For the content text there is also padding around the text.
+
+The content was made scrollable with LazyColumn.
+
+User clicks are registered with the clickable modifier. The change on the screen is implemented by storing the state of the UI object, specifically by using remember and mutableStateof.
+
+
+
