@@ -1,0 +1,5 @@
+What are the essential parts for implementing navigation?
+Composable destinations, rememberNavController, NavHost and NavController
+
+How can you make a button that takes you to another view in the app?
+A button has an onClick which triggers the navController.navigate and passes the particular destination to that method.

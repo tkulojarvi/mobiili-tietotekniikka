@@ -34,10 +34,25 @@ import androidx.compose.ui.unit.dp
 import com.example.composetutorial.ui.theme.ComposeTutorialTheme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextField
+import androidx.compose.ui.Alignment
+
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.NavType
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        /*
         setContent {
             Text("Hello World!")
         }
@@ -49,8 +64,15 @@ class MainActivity : ComponentActivity() {
                 Conversation(SampleData.conversationSample)
             }
         }
+        */
+
+        setContent {
+            Navigation()
+        }
     }
 }
+
+/* HOMEWORK 1 STUFF */
 
 data class Message(val author: String, val body: String)
 
@@ -107,8 +129,6 @@ fun MessageCard(msg: Message) {
     }
 }
 
-
-
 @Preview(name = "Light Mode")
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
@@ -128,14 +148,25 @@ fun PreviewMessageCard() {
 }
 
 @Composable
-fun Conversation(messages: List<Message>) {
+fun Conversation(messages: List<Message>, navController: NavController) {
     LazyColumn {
         items(messages) { message ->
             MessageCard(message)
         }
     }
+
+    // BACK TO MAIN SCREEN BUTTON
+    Button(
+        onClick = {
+            navController.navigate(Screen.MainScreen.route)
+        },
+        //modifier = Modifier.align(Alignment.End)
+    ) {
+        Text(text = "MAIN SCREEN")
+    }
 }
 
+/*
 @Preview
 @Composable
 fun PreviewConversation() {
@@ -143,6 +174,7 @@ fun PreviewConversation() {
         Conversation(SampleData.conversationSample)
     }
 }
+*/
 
 /**
  * SampleData for Jetpack Compose Tutorial
@@ -218,13 +250,6 @@ object SampleData {
     )
 }
 
-
-
-
-
-
-
-
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
@@ -240,3 +265,95 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* HOMEWORK 2 STUFF */
+
+@Composable
+fun Navigation() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
+        composable(route = Screen.MainScreen.route){
+            MainScreen(navController = navController)
+        }
+        composable(route = Screen.ConversationScreen.route) {
+            Conversation(SampleData.conversationSample, navController = navController)
+        }
+    }
+}
+
+@Composable
+fun MainScreen(navController: NavController) {
+    var text by remember {
+        mutableStateOf("")
+    }
+    Column(
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 50.dp)
+    ) {
+        TextField(
+            value = text,
+            onValueChange = {
+                text = it
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = {
+                navController.navigate(Screen.ConversationScreen.route)
+            },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(text = "Conversation Screen")
+        }
+    }
+}
+
+sealed class Screen(val route: String) {
+    object MainScreen : Screen("main_screen")
+    object ConversationScreen : Screen("conversation_screen") // Added
+
+    fun withArgs(vararg args: String): String {
+        return buildString {
+            append(route)
+            args.forEach { arg ->
+                append("/$arg")
+            }
+        }
+    }
+}
+
+
+
