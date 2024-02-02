@@ -83,4 +83,11 @@ dependencies {
     // Jetpack Compose Integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
+
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
+
 }

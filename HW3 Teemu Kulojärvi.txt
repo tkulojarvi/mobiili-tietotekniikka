@@ -1,0 +1,12 @@
+HW3 Teemu Kulojärvi
+
+New navigation system was created by ChatGPT. I couldn't get the navigation from the previous homework to work despite trying.
+
+1. How did you implement picking an image?
+- Image is picked by using a TextField for entering an image URL. The TextField is part of the LoginPage composable. URL is stored in viewModel.url. Then in MessageCard composable the viewModel.url is used.
+
+2. How did you implement text input?
+- Text input is handled with a TextField in the LoginPage composable.
+
+3. How can you store the data such that the application can display your chosen image and text even when you change views or restart the application?
+- I did not implement saving the image.

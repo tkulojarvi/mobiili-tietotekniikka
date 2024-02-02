@@ -1,5 +1,7 @@
-What are the essential parts for implementing navigation?
+Implemented navigation between two screens. First screen is a login screen where you can input your name and then click a button to proceed to the second screen. The second screen has the contents of HW1 along with a button to go back to the login screen.
+
+What are the essential parts for implementing navigation?:
 Composable destinations, rememberNavController, NavHost and NavController
 
-How can you make a button that takes you to another view in the app?
+How can you make a button that takes you to another view in the app?:
 A button has an onClick which triggers the navController.navigate and passes the particular destination to that method.
