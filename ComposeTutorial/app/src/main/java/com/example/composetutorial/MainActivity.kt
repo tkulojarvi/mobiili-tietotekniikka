@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 
 import androidx.navigation.NavController
@@ -357,3 +358,269 @@ sealed class Screen(val route: String) {
 
 
 
+<<<<<<< Updated upstream
+=======
+class LoginViewModel : ViewModel() {
+    var username by mutableStateOf("")
+    var url by mutableStateOf("")
+}
+
+@Composable
+fun LoginPage(viewModel: LoginViewModel, onNextPage: () -> Unit) {
+    var username by remember { mutableStateOf("") }
+    var url by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        // USERNAME INPUT
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                viewModel.username = username
+                onNextPage()
+            })
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // URL INPUT
+        TextField(
+            value = url,
+            onValueChange = { url = it },
+            label = { Text("Image URL") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                viewModel.url = url
+                onNextPage()
+            })
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // PROFILE PHOTO
+        LaunchedEffect(url) {
+            viewModel.url = url
+        }
+
+        Image(
+            painter = rememberAsyncImagePainter("${viewModel.url}"),
+            contentDescription = null,
+            modifier = Modifier
+                .size(80.dp)
+                .clip(CircleShape)
+                .border(1.5.dp, MaterialTheme.colorScheme.secondary, CircleShape)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                viewModel.username = username
+                viewModel.url = url
+                onNextPage()
+            }
+        ) {
+            Text("Next")
+        }
+    }
+}
+
+
+@Composable
+fun UserInfoPage(viewModel: LoginViewModel, onNavigateBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = {
+                // Handle the button click to navigate back to the login page
+                onNavigateBack()
+            }
+        ) {
+            Text("Back to Login")
+        }
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        Conversation(SampleData.conversationSample, viewModel)
+
+    }
+}
+
+@Composable
+fun Conversation(messages: List<Message>, viewModel: LoginViewModel) {
+
+    // Use the argument value in UI
+    LazyColumn {
+        items(messages) { message ->
+            MessageCard(message, viewModel)
+        }
+    }
+}
+
+/**
+ * SampleData for Jetpack Compose Tutorial
+ */
+object SampleData {
+    // Sample conversation data
+    val conversationSample = listOf(
+        Message(
+            "Test...Test...Test..."
+        ),
+        Message(
+            """List of Android versions:
+            |Android KitKat (API 19)
+            |Android Lollipop (API 21)
+            |Android Marshmallow (API 23)
+            |Android Nougat (API 24)
+            |Android Oreo (API 26)
+            |Android Pie (API 28)
+            |Android 10 (API 29)
+            |Android 11 (API 30)
+            |Android 12 (API 31)""".trim()
+        ),
+        Message(
+            """I think Kotlin is my favorite programming language.
+            |It's so much fun!""".trim()
+        ),
+        Message(
+            "Searching for alternatives to XML layouts..."
+        ),
+        Message(
+            """Hey, take a look at Jetpack Compose, it's great!
+            |It's the Android's modern toolkit for building native UI.
+            |It simplifies and accelerates UI development on Android.
+            |Less code, powerful tools, and intuitive Kotlin APIs :)""".trim()
+        ),
+        Message(
+            "It's available from API 21+ :)"
+        ),
+        Message(
+            "Writing Kotlin for UI seems so natural, Compose where have you been all my life?"
+        ),
+        Message(
+            "Android Studio next version's name is Arctic Fox"
+        ),
+        Message(
+            "Android Studio Arctic Fox tooling for Compose is top notch ^_^"
+        ),
+        Message(
+            "I didn't know you can now run the emulator directly from Android Studio"
+        ),
+        Message(
+            "Compose Previews are great to check quickly how a composable layout looks like"
+        ),
+        Message(
+            "Previews are also interactive after enabling the experimental setting"
+        ),
+        Message(
+            "Have you tried writing build.gradle with KTS?"
+        ),
+    )
+}
+
+data class Message(val body: String)
+
+@Composable
+fun MessageCard(msg: Message, viewModel: LoginViewModel) {
+
+    Row(modifier = Modifier.padding(all = 8.dp)) {
+
+        // PROFILE PHOTO
+        Image(
+            painter = rememberAsyncImagePainter("${viewModel.url}"),
+            contentDescription = null,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .border(1.5.dp, MaterialTheme.colorScheme.secondary, CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // We keep track if the message is expanded or not in this
+        // variable
+        var isExpanded by remember { mutableStateOf(false) }
+        // surfaceColor will be updated gradually from one color to the other
+        val surfaceColor by animateColorAsState(
+            if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+            label = "",
+        )
+
+        // We toggle the isExpanded variable when we click on this Column
+        Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
+            Text(
+                text =  "${viewModel.username}",
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.titleSmall
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                shadowElevation = 1.dp,
+                // surfaceColor color will be changing gradually from primary to surface
+                color = surfaceColor,
+                // animateContentSize will change the Surface size gradually
+                modifier = Modifier.animateContentSize().padding(1.dp)
+            ) {
+                Text(
+                    text = msg.body,
+                    modifier = Modifier.padding(all = 4.dp),
+                    // If the message is expanded, we display all its content
+                    // otherwise we only display the first line
+                    maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TwoPageLoginScreen(viewModel: LoginViewModel) {
+    var page by remember { mutableStateOf(1) }
+
+    when (page) {
+        1 -> LoginPage(viewModel) { page = 2 }
+        2 -> UserInfoPage(viewModel) { page = 1 }
+    }
+}
+
+@Composable
+fun TwoPageLoginActivity() {
+    val viewModel: LoginViewModel = viewModel()
+    TwoPageLoginScreen(viewModel)
+}
+
+@Composable
+fun JetpackComposeLoginScreen() {
+    Surface(color = Color.White) {
+        TwoPageLoginActivity()
+    }
+}
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            JetpackComposeLoginScreen()
+        }
+    }
+}
+>>>>>>> Stashed changes
