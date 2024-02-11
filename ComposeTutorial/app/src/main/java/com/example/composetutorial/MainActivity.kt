@@ -43,6 +43,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -419,6 +420,22 @@ fun LoginPage(viewModel: LoginViewModel, onNextPage: () -> Unit) {
                 viewModel.url = url
                 onNextPage()
             })
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // PROFILE PHOTO
+        LaunchedEffect(url) {
+            viewModel.url = url
+        }
+
+        Image(
+            painter = rememberAsyncImagePainter("${viewModel.url}"),
+            contentDescription = null,
+            modifier = Modifier
+                .size(80.dp)
+                .clip(CircleShape)
+                .border(1.5.dp, MaterialTheme.colorScheme.secondary, CircleShape)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
