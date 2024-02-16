@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.composetutorial"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -64,6 +64,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
+
     val nav_version = "2.7.6"
 
     // Java language implementation
@@ -88,6 +89,9 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    //implementation("androidx.core:core-ktx:2.2.0")
 
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
 }

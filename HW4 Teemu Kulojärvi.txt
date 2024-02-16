@@ -1,0 +1,28 @@
+HW4 Teemu Kulojärvi
+
+
+- How did you get your app to trigger a notification while it's not in the foreground?
+I didn't manage to implement this feature.
+
+- How did you make the notification interactable?
+
+notificationService.showNotification() method is triggered when the "Show Notification" button is clicked. 
+In the Notification class, an Intent is created, specifying that clicking the notification should open the MainActivity.
+Also a PendingIntent is created. It represents the operation of launching the MainActivity. 
+When the user clicks the notification, it will trigger the specified PendingIntent, which opens the MainActivity.
+
+- What does clicking the notification do?
+It launches the app.
+
+- What sensor are you using and how are you reading its values in the background?
+
+Accelerometer sensor is used to capture accelerometer values.
+The accelerometer sensor is obtained using sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER).
+AccelerometerViewModel class has _accelerometerValues that is used to hold the accelerometer values.
+onSensorChanged function in the sensorListener updates the accelerometer values.
+onSensorChanged gets called whenever the accelerometer sensor reports a new set of values.
+
+I used the Android Studio emulator to change the sensor values in the video.
+
+- What are you using the sensor input for?
+The accelerometer values are simply displayed on screen.

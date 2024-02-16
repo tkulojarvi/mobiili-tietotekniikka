@@ -1,8 +1,19 @@
 package com.example.composetutorial
 
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,7 +43,9 @@ import androidx.compose.ui.unit.dp
 import com.example.composetutorial.ui.theme.ComposeTutorialTheme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
@@ -41,6 +54,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +62,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -57,6 +76,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 /*
 class MainActivity : ComponentActivity() {
@@ -594,7 +621,9 @@ fun MessageCard(msg: Message, viewModel: LoginViewModel) {
                 // surfaceColor color will be changing gradually from primary to surface
                 color = surfaceColor,
                 // animateContentSize will change the Surface size gradually
-                modifier = Modifier.animateContentSize().padding(1.dp)
+                modifier = Modifier
+                    .animateContentSize()
+                    .padding(1.dp)
             ) {
                 Text(
                     text = msg.body,
@@ -632,11 +661,131 @@ fun JetpackComposeLoginScreen() {
     }
 }
 
+// SENSORS BELOW
+
+class AccelerometerViewModel : ViewModel() {
+    private val _accelerometerValues = MutableLiveData<FloatArray>()
+    val accelerometerValues: LiveData<FloatArray> get() = _accelerometerValues
+
+    fun onSensorChanged(event: SensorEvent) {
+        _accelerometerValues.value = event.values.clone()
+    }
+}
+
+@Composable
+fun AccelerometerComposable(viewModel: AccelerometerViewModel = viewModel()) {
+    val accelerometerValues by viewModel.accelerometerValues.observeAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val xValue = accelerometerValues?.getOrNull(0) ?: 0f
+        val yValue = accelerometerValues?.getOrNull(1) ?: 0f
+        val zValue = accelerometerValues?.getOrNull(2) ?: 0f
+
+        Text(
+            text = "Accelerometer Values:\nX: $xValue\nY: $yValue\nZ: $zValue",
+            textAlign = TextAlign.Center,
+            fontSize = 22.sp,
+            modifier = Modifier.padding(1.dp)
+        )
+    }
+}
+
 class MainActivity : ComponentActivity() {
+
+    private val ACCviewModel: AccelerometerViewModel by viewModels()
+
+    private lateinit var sensorManager: SensorManager
+    private var accelerometerSensor: Sensor? = null
+    private val sensorListener = object : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+            // Not needed for accelerometer
+        }
+
+        override fun onSensorChanged(event: SensorEvent) {
+            ACCviewModel.onSensorChanged(event)
+        }
+    }
+
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+            // LOGIN UI
             JetpackComposeLoginScreen()
+
+            // SENSOR UI
+            AccelerometerComposable(ACCviewModel)
+
+            // NOTIFICATION UI
+            ComposeTutorialTheme {
+                val notificationService = Notification(applicationContext)
+
+                Box(modifier = Modifier
+                    .fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            val permissionState = rememberPermissionState(
+                                permission = android.Manifest.permission.POST_NOTIFICATIONS
+                            )
+                            if (!permissionState.status.isGranted) {
+                                Button(onClick = { permissionState.launchPermissionRequest() }) {
+                                    Text(
+                                        text = "Allow Notification",
+                                        fontSize = 22.sp
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.size(16.dp))
+                        Button(onClick = { notificationService.showNotification() }) {
+                            Text(
+                                text = "Show Notification",
+                                fontSize = 22.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Initialize sensorManager and accelerometerSensor
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Check if the accelerometerSensor is not null before registering the listener
+        accelerometerSensor?.let {
+            sensorManager.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        // Unregister sensor listener
+        sensorManager.unregisterListener(sensorListener)
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
