@@ -94,4 +94,6 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
     implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

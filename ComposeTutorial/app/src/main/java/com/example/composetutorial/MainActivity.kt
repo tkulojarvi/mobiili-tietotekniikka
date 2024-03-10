@@ -82,7 +82,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /*
@@ -696,6 +699,8 @@ fun AccelerometerComposable(viewModel: AccelerometerViewModel = viewModel()) {
 
 class MainActivity : ComponentActivity() {
 
+    private val viewModel by viewModels<MainViewModel>()
+
     private val ACCviewModel: AccelerometerViewModel by viewModels()
 
     private lateinit var sensorManager: SensorManager
@@ -712,7 +717,17 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
+
         super.onCreate(savedInstanceState)
+
+        installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                !viewModel.isReady.value
+            }
+        }
+
         setContent {
 
             // LOGIN UI
@@ -777,8 +792,6 @@ class MainActivity : ComponentActivity() {
         sensorManager.unregisterListener(sensorListener)
     }
 }
-
-
 
 
 
